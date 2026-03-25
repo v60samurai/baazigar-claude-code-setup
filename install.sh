@@ -494,16 +494,6 @@ backup_file() {
     fi
 }
 
-# --- Section extractor ------------------------------------------------------
-
-extract_section() {
-    local file="$1" section="$2"
-    sed -n "/<!-- SECTION: ${section} -->/,/<!-- SECTION:/{
-        /<!-- SECTION:/d
-        p
-    }" "$file"
-}
-
 # --- Generate CLAUDE.md -----------------------------------------------------
 
 generate_claude_md() {
@@ -515,86 +505,10 @@ generate_claude_md() {
 
     backup_file "$output_file"
 
-    # Extract sections from stack preset
-    local stack_section behavioral_overrides quality_overrides
-    local forbidden_patterns file_structure conventions when_unsure
-
-    stack_section=$(extract_section "$stack_file" "Stack")
-    behavioral_overrides=$(extract_section "$stack_file" "Behavioral Overrides")
-    quality_overrides=$(extract_section "$stack_file" "Quality Overrides")
-    forbidden_patterns=$(extract_section "$stack_file" "Forbidden Patterns")
-    file_structure=$(extract_section "$stack_file" "File Structure")
-    conventions=$(extract_section "$stack_file" "Conventions")
-    when_unsure=$(extract_section "$stack_file" "When Unsure")
-
-    # Extract behavioral rule lines (numbered 7. and 10.)
-    local rule_7 rule_10
-    rule_7=$(echo "$behavioral_overrides" | grep -E '^\s*7\.' | sed 's/^[[:space:]]*//' || echo "Follow language-idiomatic style strictly.")
-    rule_10=$(echo "$behavioral_overrides" | grep -E '^\s*10\.' | sed 's/^[[:space:]]*//' || echo "Use the project's package manager. Check before adding dependencies.")
-
-    # Remove the "## Section Header" lines from extracted content (first non-empty line if it starts with ##)
-    stack_section=$(echo "$stack_section" | sed '/^## /d')
-    quality_overrides=$(echo "$quality_overrides" | sed '/^## /d')
-    forbidden_patterns=$(echo "$forbidden_patterns" | sed '/^## /d')
-    file_structure=$(echo "$file_structure" | sed '/^## /d')
-    conventions=$(echo "$conventions" | sed '/^## /d')
-    when_unsure=$(echo "$when_unsure" | sed '/^## /d')
-
-    # Trim leading/trailing blank lines
-    stack_section=$(echo "$stack_section" | sed -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba;}')
-    quality_overrides=$(echo "$quality_overrides" | sed -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba;}')
-    forbidden_patterns=$(echo "$forbidden_patterns" | sed -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba;}')
-    file_structure=$(echo "$file_structure" | sed -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba;}')
-    conventions=$(echo "$conventions" | sed -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba;}')
-    when_unsure=$(echo "$when_unsure" | sed -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba;}')
-
     # Handle optional location
-    local identity_location=""
-    if [[ -n "$USER_LOCATION" ]]; then
-        identity_location="$USER_LOCATION"
-    fi
+    local identity_location="${USER_LOCATION}"
 
-    # Build the output by reading template and replacing placeholders
-    local content
-    content=$(cat "$template_file")
-
-    # Simple placeholder replacements
-    content=$(echo "$content" | sed "s|{{NAME}}|${USER_NAME}|g")
-    content=$(echo "$content" | sed "s|{{HANDLE}}|${USER_HANDLE}|g")
-    content=$(echo "$content" | sed "s|{{ROLE}}|${USER_ROLE}|g")
-    content=$(echo "$content" | sed "s|{{LOCATION}}|${identity_location}|g")
-    content=$(echo "$content" | sed "s|{{WORKING_STYLE}}|${USER_WORKING_STYLE}|g")
-
-    # Multi-line replacements using python3 for safety
-    python3 << PYEOF
-import sys
-
-with open("$template_file", "r") as f:
-    content = f.read()
-
-replacements = {
-    "{{NAME}}": """${USER_NAME}""",
-    "{{HANDLE}}": """${USER_HANDLE}""",
-    "{{ROLE}}": """${USER_ROLE}""",
-    "{{LOCATION}}": """${identity_location}""",
-    "{{WORKING_STYLE}}": """${USER_WORKING_STYLE}""",
-}
-
-for key, val in replacements.items():
-    content = content.replace(key, val)
-
-# Multi-line replacements (read from files to avoid shell escaping issues)
-import subprocess, tempfile, os
-
-def read_var(name):
-    """Read a section from a temp file."""
-    pass
-
-# We use a different approach: write sections to temp files, read them in python
-sections = {}
-PYEOF
-
-    # Use python3 for the full generation to avoid shell escaping nightmares
+    # Use python3 for all template processing (cross-platform, handles multi-line safely)
     python3 << 'PYEOF' - "$template_file" "$stack_file" "$output_file" "$USER_NAME" "$USER_HANDLE" "$USER_ROLE" "$identity_location" "$USER_WORKING_STYLE"
 import sys, re
 
