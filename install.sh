@@ -818,7 +818,7 @@ register_marketplaces() {
             printf "  ${BOLD}%s${RESET}... ${GREEN}already registered${RESET}\n" "$name"
         else
             printf "  ${BOLD}%s${RESET}..." "$name"
-            if claude plugin marketplace add "github:$repo" 2>&1 >/dev/null; then
+            if claude plugin marketplace add "$repo" 2>&1 >/dev/null; then
                 printf " ${GREEN}ok${RESET}\n"
             else
                 printf " ${YELLOW}skipped${RESET}\n"
