@@ -691,20 +691,58 @@ for perm in stack_deny.get(stack, []):
         deny_list.append(perm)
 settings["permissions"]["deny"] = deny_list
 
-# Build enabledPlugins based on bundles
+# Build enabledPlugins with correct plugin names from the spec
 enabled_plugins = {}
 
-if bundle_dev:
-    enabled_plugins.update({
-        "developer-skills@superpowers-marketplace": True,
-        "playwright@claude-plugins-official": True,
-        "review-pr@claude-plugins-official": True,
-    })
+# Core bundle (always)
+core_plugins = [
+    "superpowers@claude-plugins-official",
+    "episodic-memory@superpowers-marketplace",
+    "context7@claude-plugins-official",
+    "code-review@claude-plugins-official",
+    "code-simplifier@claude-plugins-official",
+    "feature-dev@claude-plugins-official",
+    "elements-of-style@superpowers-marketplace",
+    "plugin-dev@claude-plugins-official",
+    "claude-mem@thedotmack",
+]
+for p in core_plugins:
+    enabled_plugins[p] = True
 
+# Dev bundle
+if bundle_dev:
+    dev_plugins = [
+        "everything-claude-code@everything-claude-code",
+        "pr-review-toolkit@claude-plugins-official",
+        "superpowers-chrome@superpowers-marketplace",
+        "agent-sdk-dev@claude-plugins-official",
+        "superpowers-lab@superpowers-marketplace",
+        "superpowers-developing-for-claude-code@superpowers-marketplace",
+        "claude-session-driver@superpowers-marketplace",
+        "security-guidance@claude-plugins-official",
+        "playwright@claude-plugins-official",
+    ]
+    # Add frontend-design for frontend stacks
+    if stack in ("react-nextjs",):
+        dev_plugins.append("frontend-design@claude-plugins-official")
+    for p in dev_plugins:
+        enabled_plugins[p] = True
+
+# PM bundle
 if bundle_pm:
-    enabled_plugins.update({
-        "pm-skills@pm-skills": True,
-    })
+    pm_plugins = [
+        "pm-toolkit@pm-skills",
+        "pm-product-strategy@pm-skills",
+        "pm-product-discovery@pm-skills",
+        "pm-market-research@pm-skills",
+        "pm-data-analytics@pm-skills",
+        "pm-marketing-growth@pm-skills",
+        "pm-go-to-market@pm-skills",
+        "pm-execution@pm-skills",
+        "resume-helper@MadeByTokens-marketplace",
+    ]
+    for p in pm_plugins:
+        enabled_plugins[p] = True
 
 # Integration plugins
 integration_plugin_map = {
@@ -719,9 +757,8 @@ integration_plugin_map = {
     "atlassian": "atlassian@claude-plugins-official",
     "linear": "linear@claude-plugins-official",
     "gitlab": "gitlab@claude-plugins-official",
-    "huggingface": "huggingface@claude-plugins-official",
+    "huggingface": "huggingface-skills@claude-plugins-official",
 }
-
 for integration in integrations:
     plugin_name = integration_plugin_map.get(integration)
     if plugin_name:
@@ -762,13 +799,13 @@ PYEOF
 # --- Install plugins --------------------------------------------------------
 
 install_plugins() {
-    info "Installing plugins..."
+    info "Installing plugins (this may take a few minutes)..."
 
-    # Check if claude plugin install is available
-    local can_install=true
-    if ! claude plugin install --help &>/dev/null 2>&1; then
-        can_install=false
-        warn "claude plugin install not available. Plugins configured in settings.json - you may need to install them manually."
+    # Check if claude plugin command exists
+    if ! command -v claude &>/dev/null; then
+        warn "Claude CLI not found. Plugins configured in settings.json but not installed."
+        warn "Run 'claude plugin install <name>' manually for each plugin after installing Claude CLI."
+        return
     fi
 
     # Collect all plugin names from settings
@@ -781,18 +818,39 @@ for p in s.get('enabledPlugins', {}):
     print(p)
 ")
 
+    local installed=0 failed=0
+
     while IFS= read -r plugin; do
         [[ -z "$plugin" ]] && continue
         echo "$plugin" >> "$PLUGINS_LOG"
 
-        if $can_install; then
-            if claude plugin install "$plugin" 2>/dev/null; then
-                success "Installed plugin: $plugin"
+        # Show progress
+        printf "  Installing ${BOLD}%s${RESET}..." "$plugin"
+
+        # Try install, capture output for error diagnosis
+        local output
+        if output=$(claude plugin install "$plugin" 2>&1); then
+            printf " ${GREEN}ok${RESET}\n"
+            ((installed++))
+        else
+            # Check if already installed
+            if echo "$output" | grep -qi "already installed"; then
+                printf " ${GREEN}already installed${RESET}\n"
+                ((installed++))
             else
-                warn "Failed to install: $plugin (configured in settings.json)"
+                printf " ${YELLOW}skipped${RESET}\n"
+                ((failed++))
             fi
         fi
     done <<< "$plugins"
+
+    if (( installed > 0 )); then
+        success "Installed $installed plugins."
+    fi
+    if (( failed > 0 )); then
+        warn "$failed plugins could not be installed automatically."
+        info "They're configured in settings.json. Claude Code will prompt to install them on next launch."
+    fi
 }
 
 # --- Write manifest ---------------------------------------------------------
