@@ -60,38 +60,238 @@ BANNER
 
 # --- Prerequisites ----------------------------------------------------------
 
-check_prereqs() {
-    local missing=0
-
-    if ! command -v git &>/dev/null; then
-        error "git not found. Install: https://git-scm.com/downloads"
-        missing=1
+install_homebrew() {
+    if command -v brew &>/dev/null; then
+        success "Homebrew already installed."
+        return 0
     fi
 
+    printf "\n"
+    info "Homebrew is a package manager for macOS (like apt for Linux)."
+    info "It lets you install developer tools with simple commands."
+    printf "\n"
+
+    if prompt_yn "Install Homebrew now?" Y; then
+        info "Installing Homebrew (this may take a few minutes)..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+        # Add brew to PATH for this session (Apple Silicon vs Intel)
+        if [[ -f /opt/homebrew/bin/brew ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [[ -f /usr/local/bin/brew ]]; then
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
+
+        if command -v brew &>/dev/null; then
+            success "Homebrew installed."
+        else
+            error "Homebrew installation failed. Try manually:"
+            printf "  ${BOLD}/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"${RESET}\n"
+            printf "  Then re-run this installer.\n"
+            return 1
+        fi
+    else
+        warn "Skipping Homebrew. Some prerequisites may need manual installation."
+        return 1
+    fi
+}
+
+install_git() {
+    if command -v git &>/dev/null; then
+        success "git $(git --version | awk '{print $3}') found."
+        return 0
+    fi
+
+    printf "\n"
+    printf "${BOLD}Git is not installed.${RESET}\n"
+    info "Git is version control software - it tracks changes to your code."
+    info "You already used it to clone this repo, so it's likely installed."
+    printf "\n"
+
+    if [[ "$(uname)" == "Darwin" ]]; then
+        info "On macOS, the easiest way to install git:"
+        printf "\n"
+        printf "  ${BOLD}Option 1 (recommended):${RESET} Install Xcode Command Line Tools:\n"
+        printf "    ${DIM}xcode-select --install${RESET}\n"
+        printf "    This opens a popup - click 'Install' and wait ~5 minutes.\n"
+        printf "\n"
+        printf "  ${BOLD}Option 2:${RESET} Install via Homebrew:\n"
+        printf "    ${DIM}brew install git${RESET}\n"
+        printf "\n"
+
+        if prompt_yn "Try installing via Xcode Command Line Tools now?" Y; then
+            xcode-select --install 2>/dev/null || true
+            printf "\n"
+            warn "A popup may have appeared. Click 'Install' and wait for it to finish."
+            printf "${BOLD}Press Enter when the installation is complete...${RESET}"
+            read -r
+
+            if command -v git &>/dev/null; then
+                success "git installed."
+                return 0
+            else
+                error "git still not found. Install manually and re-run."
+                return 1
+            fi
+        fi
+    else
+        info "On Linux, install git with your package manager:"
+        printf "\n"
+        printf "  ${BOLD}Ubuntu/Debian:${RESET}  sudo apt install git\n"
+        printf "  ${BOLD}Fedora:${RESET}         sudo dnf install git\n"
+        printf "  ${BOLD}Arch:${RESET}           sudo pacman -S git\n"
+        printf "\n"
+    fi
+
+    error "Please install git and re-run this installer."
+    return 1
+}
+
+install_node() {
     if command -v node &>/dev/null; then
         local node_major
         node_major=$(node -v | sed 's/v//' | cut -d. -f1)
-        if (( node_major < 18 )); then
-            error "Node.js >= 18 required (found v$(node -v)). Install: https://nodejs.org"
-            missing=1
+        if (( node_major >= 18 )); then
+            success "Node.js $(node -v) found."
+            return 0
+        else
+            warn "Node.js $(node -v) found, but version 18 or higher is required."
+        fi
+    fi
+
+    printf "\n"
+    printf "${BOLD}Node.js is not installed (or too old).${RESET}\n"
+    info "Node.js is a JavaScript runtime. Claude Code is built with it."
+    info "You need version 18 or higher."
+    printf "\n"
+
+    if [[ "$(uname)" == "Darwin" ]]; then
+        info "Recommended install methods for macOS:"
+        printf "\n"
+        printf "  ${BOLD}Option 1 (recommended):${RESET} Install via Homebrew:\n"
+        printf "    ${DIM}brew install node${RESET}\n"
+        printf "    This installs the latest LTS version.\n"
+        printf "\n"
+        printf "  ${BOLD}Option 2:${RESET} Download from nodejs.org:\n"
+        printf "    ${DIM}https://nodejs.org${RESET}\n"
+        printf "    Download the LTS version and run the installer.\n"
+        printf "\n"
+        printf "  ${BOLD}Option 3:${RESET} Use a version manager (nvm):\n"
+        printf "    ${DIM}curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash${RESET}\n"
+        printf "    ${DIM}nvm install --lts${RESET}\n"
+        printf "\n"
+
+        if command -v brew &>/dev/null; then
+            if prompt_yn "Install Node.js via Homebrew now?" Y; then
+                info "Installing Node.js..."
+                brew install node
+
+                if command -v node &>/dev/null; then
+                    success "Node.js $(node -v) installed."
+                    return 0
+                fi
+            fi
+        else
+            info "Install Homebrew first (we'll ask about it next), then use 'brew install node'."
         fi
     else
-        error "node not found. Install Node.js >= 18: https://nodejs.org"
-        missing=1
-    fi
-
-    if ! command -v claude &>/dev/null; then
-        error "Claude CLI not found. Install: npm install -g @anthropic-ai/claude-code"
-        missing=1
-    fi
-
-    if (( missing )); then
+        info "Recommended install methods for Linux:"
         printf "\n"
-        error "Missing prerequisites. Install them and re-run."
+        printf "  ${BOLD}Option 1 (recommended):${RESET} Use NodeSource:\n"
+        printf "    ${DIM}curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -${RESET}\n"
+        printf "    ${DIM}sudo apt install -y nodejs${RESET}\n"
+        printf "\n"
+        printf "  ${BOLD}Option 2:${RESET} Use nvm (version manager):\n"
+        printf "    ${DIM}curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash${RESET}\n"
+        printf "    ${DIM}source ~/.bashrc && nvm install --lts${RESET}\n"
+        printf "\n"
+    fi
+
+    if ! command -v node &>/dev/null; then
+        error "Node.js not found. Please install it and re-run."
+        return 1
+    fi
+}
+
+install_claude_cli() {
+    if command -v claude &>/dev/null; then
+        success "Claude Code CLI found."
+        return 0
+    fi
+
+    printf "\n"
+    printf "${BOLD}Claude Code CLI is not installed.${RESET}\n"
+    info "Claude Code is Anthropic's AI coding assistant for the terminal."
+    info "It's what this entire setup configures."
+    printf "\n"
+    info "Requirements before installing Claude Code:"
+    printf "  - Node.js 18+ (we'll check this first)\n"
+    printf "  - An Anthropic account (free to create at anthropic.com)\n"
+    printf "\n"
+
+    if ! command -v node &>/dev/null; then
+        error "Node.js must be installed first. Install Node.js, then re-run."
+        return 1
+    fi
+
+    printf "  ${BOLD}Install command:${RESET}\n"
+    printf "    ${DIM}npm install -g @anthropic-ai/claude-code${RESET}\n"
+    printf "\n"
+
+    if prompt_yn "Install Claude Code CLI now?" Y; then
+        info "Installing Claude Code CLI (this may take a minute)..."
+
+        # Use npm even if pnpm is preferred - global installs are fine with npm
+        if npm install -g @anthropic-ai/claude-code 2>/dev/null; then
+            if command -v claude &>/dev/null; then
+                success "Claude Code CLI installed."
+                printf "\n"
+                info "First-time setup: Run 'claude' in your terminal to log in with your Anthropic account."
+                info "You can do this after the installer finishes."
+                return 0
+            fi
+        fi
+
+        error "Installation failed. Try manually:"
+        printf "    ${DIM}npm install -g @anthropic-ai/claude-code${RESET}\n"
+        printf "\n"
+        info "If you get a permission error, try:"
+        printf "    ${DIM}sudo npm install -g @anthropic-ai/claude-code${RESET}\n"
+        printf "\n"
+        info "Or fix npm permissions (recommended):"
+        printf "    ${DIM}https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally${RESET}\n"
+        return 1
+    else
+        error "Claude Code CLI is required. Install it and re-run."
+        return 1
+    fi
+}
+
+check_prereqs() {
+    printf "\n${BOLD}--- Checking Prerequisites ---${RESET}\n\n"
+
+    local all_ok=true
+
+    # On macOS, offer Homebrew first (other installs depend on it)
+    if [[ "$(uname)" == "Darwin" ]]; then
+        install_homebrew || all_ok=false
+    fi
+
+    # Check/install in dependency order: git -> node -> claude
+    install_git || all_ok=false
+    install_node || all_ok=false
+    install_claude_cli || all_ok=false
+
+    if ! $all_ok; then
+        printf "\n"
+        error "Some prerequisites could not be installed."
+        info "Install the missing tools listed above, then re-run:"
+        printf "    ${BOLD}bash install.sh${RESET}\n"
         exit 1
     fi
 
-    success "Prerequisites OK (git, node $(node -v), claude CLI)"
+    printf "\n"
+    success "All prerequisites OK."
 }
 
 # --- Existing install check -------------------------------------------------

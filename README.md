@@ -30,7 +30,42 @@ The installer walks you through everything interactively:
 3. Plugin bundles (Core, Dev, PM, Integrations)
 4. iTerm2 theme and prompt style (macOS only)
 
-**Prerequisites:** git, Node.js 18+, [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code/overview)
+**Prerequisites:** The installer checks for and helps you install everything you need. If you're starting from scratch, it will guide you through installing Homebrew, git, Node.js, and Claude Code CLI step by step.
+
+<details>
+<summary>Manual prerequisite install (if you prefer doing it yourself)</summary>
+
+**1. Homebrew (macOS only)**
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+**2. Git**
+```bash
+# macOS (via Xcode tools)
+xcode-select --install
+
+# Ubuntu/Debian
+sudo apt install git
+```
+
+**3. Node.js 18+**
+```bash
+# macOS
+brew install node
+
+# Ubuntu/Debian
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+**4. Claude Code CLI**
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+Then run `claude` once to log in with your Anthropic account.
+
+</details>
 
 ## Plugin Bundles
 
