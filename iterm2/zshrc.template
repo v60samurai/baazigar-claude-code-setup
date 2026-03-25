@@ -1,0 +1,29 @@
+# Baazigar Claude Code Setup - Generated .zshrc
+# https://github.com/v60samurai/baazigar-claude-code-setup
+
+# Powerlevel10k instant prompt (must be near top)
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Oh My Zsh
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME=""  # Disabled - using Powerlevel10k directly
+
+# Plugins
+plugins=(git brew node z zsh-autosuggestions zsh-syntax-highlighting)
+
+source $ZSH/oh-my-zsh.sh
+
+# Powerlevel10k
+{{P10K_SOURCE}}
+
+# Load p10k config
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# PATH
+export PATH="$HOME/.local/bin:$PATH"
+
+# === USER CUSTOMIZATIONS (preserved from previous .zshrc) ===
+# Add your custom aliases, exports, and functions below this line.
+# This section is preserved when you re-run the installer.
