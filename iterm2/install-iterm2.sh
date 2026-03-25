@@ -51,12 +51,12 @@ fi
 
 # ---------- 2. iTerm2 ----------
 step "Checking iTerm2"
-if ! brew list --cask iterm2 &>/dev/null; then
+if [[ -d "/Applications/iTerm.app" ]] || brew list --cask iterm2 &>/dev/null 2>&1; then
+  success "iTerm2 already installed."
+else
   info "Installing iTerm2..."
   brew install --cask iterm2
   success "iTerm2 installed."
-else
-  success "iTerm2 already installed."
 fi
 
 # ---------- 3. Nerd Font (cask) ----------
