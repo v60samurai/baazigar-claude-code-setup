@@ -796,6 +796,42 @@ PYEOF
     success "Merged: $existing_settings"
 }
 
+# --- Register marketplaces --------------------------------------------------
+
+register_marketplaces() {
+    info "Registering plugin marketplaces..."
+
+    local marketplaces=(
+        "anthropics/claude-plugins-official"
+        "obra/superpowers-marketplace"
+        "phuryn/pm-skills"
+        "affaan-m/everything-claude-code"
+        "MadeByTokens/claude-code-plugins-madebytokens"
+        "thedotmack/claude-mem"
+    )
+
+    for repo in "${marketplaces[@]}"; do
+        local name
+        name=$(echo "$repo" | cut -d/ -f2)
+        # Check if already registered
+        if claude plugin marketplace list 2>&1 | grep -q "$repo"; then
+            printf "  ${BOLD}%s${RESET}... ${GREEN}already registered${RESET}\n" "$name"
+        else
+            printf "  ${BOLD}%s${RESET}..." "$name"
+            if claude plugin marketplace add "github:$repo" 2>&1 >/dev/null; then
+                printf " ${GREEN}ok${RESET}\n"
+            else
+                printf " ${YELLOW}skipped${RESET}\n"
+            fi
+        fi
+    done
+
+    # Update all marketplaces to fetch latest plugin lists
+    info "Updating marketplace indexes..."
+    claude plugin marketplace update 2>&1 >/dev/null || true
+    success "Marketplaces ready."
+}
+
 # --- Install plugins --------------------------------------------------------
 
 install_plugins() {
@@ -1004,6 +1040,7 @@ main() {
         generate_claude_md
         copy_universal_files
         merge_settings
+        register_marketplaces
         install_plugins
         write_manifest
     fi
