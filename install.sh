@@ -860,24 +860,25 @@ for p in s.get('enabledPlugins', {}):
         [[ -z "$plugin" ]] && continue
         echo "$plugin" >> "$PLUGINS_LOG"
 
-        # Show progress
         printf "  Installing ${BOLD}%s${RESET}..." "$plugin"
 
-        # Try install, capture output for error diagnosis
-        local output
-        if output=$(claude plugin install "$plugin" 2>&1); then
+        # Run install directly (not captured) - write output to temp file
+        local tmpout
+        tmpout=$(mktemp)
+        if claude plugin install "$plugin" > "$tmpout" 2>&1; then
             printf " ${GREEN}ok${RESET}\n"
-            ((installed++))
+            ((installed++)) || true
         else
-            # Check if already installed
-            if echo "$output" | grep -qi "already installed"; then
-                printf " ${GREEN}already installed${RESET}\n"
-                ((installed++))
+            # Check output for clues
+            if grep -qi "already installed\|Successfully installed" "$tmpout" 2>/dev/null; then
+                printf " ${GREEN}ok${RESET}\n"
+                ((installed++)) || true
             else
                 printf " ${YELLOW}skipped${RESET}\n"
-                ((failed++))
+                ((failed++)) || true
             fi
         fi
+        rm -f "$tmpout"
     done <<< "$plugins"
 
     if (( installed > 0 )); then
