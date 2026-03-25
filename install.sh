@@ -862,21 +862,21 @@ for p in s.get('enabledPlugins', {}):
 
         printf "  Installing ${BOLD}%s${RESET}..." "$plugin"
 
-        # Run install directly (not captured) - write output to temp file
+        # claude plugin install returns exit 0 even on failure,
+        # so we check the output text for success/failure
         local tmpout
         tmpout=$(mktemp)
-        if claude plugin install "$plugin" > "$tmpout" 2>&1; then
+        claude plugin install "$plugin" > "$tmpout" 2>&1 || true
+
+        if grep -qi "Successfully installed\|already installed" "$tmpout" 2>/dev/null; then
             printf " ${GREEN}ok${RESET}\n"
             ((installed++)) || true
+        elif grep -qi "Failed to install\|not found" "$tmpout" 2>/dev/null; then
+            printf " ${YELLOW}failed${RESET}\n"
+            ((failed++)) || true
         else
-            # Check output for clues
-            if grep -qi "already installed\|Successfully installed" "$tmpout" 2>/dev/null; then
-                printf " ${GREEN}ok${RESET}\n"
-                ((installed++)) || true
-            else
-                printf " ${YELLOW}skipped${RESET}\n"
-                ((failed++)) || true
-            fi
+            printf " ${YELLOW}skipped${RESET}\n"
+            ((failed++)) || true
         fi
         rm -f "$tmpout"
     done <<< "$plugins"
