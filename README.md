@@ -1,13 +1,13 @@
 # Baazigar Claude Code Setup
 
-Production-ready Claude Code + iTerm2 setup. 60+ plugins, 8 commands, 3 agents, knowledge system, 6 stack presets. One command to install.
+Production-ready Claude Code + iTerm2 setup. 60+ plugins, 8 commands, 138 agents, knowledge system, 6 stack presets. One command to install.
 
 ## What You Get
 
 | Category | Count | Highlights |
 |----------|-------|-----------|
 | **Commands** | 8 | /commit, /debug, /explore, /plan, /refactor, /review, /ship, /test |
-| **Agents** | 3 | researcher (web search), reviewer (code review), simplifier (reduce complexity) |
+| **Agents** | 138 | 135 specialized subagents (VoltAgent) + researcher, reviewer, simplifier |
 | **Hooks** | 2 | Session start (load context), session end (save learnings) |
 | **Knowledge Templates** | 3 | Session journals, past mistakes log, decision records |
 | **Plugin Bundles** | 60+ | Core workflow, dev tools, PM skills, integrations |
@@ -88,6 +88,23 @@ The workflow backbone. Brainstorming, planning, debugging, TDD, verification, cr
 Vercel, GitHub, Slack, Sentry, Firebase, Supabase, Stripe, Pinecone, Atlassian, Linear, GitLab, HuggingFace
 
 [Full plugin details](docs/plugin-tiers.md)
+
+## Agents (138 total)
+
+3 custom agents (researcher, reviewer, simplifier) plus 135 specialized subagents from [VoltAgent](https://github.com/VoltAgent/awesome-claude-code-subagents):
+
+| Category | Count | Examples |
+|----------|-------|---------|
+| **Core Development** | 10 | backend, frontend, fullstack, mobile, API designer, GraphQL, microservices |
+| **Language Specialists** | 29 | TypeScript, Python, Go, Rust, Java, Kotlin, Swift, C++, React, Next.js, Django, Laravel |
+| **Infrastructure** | 16 | DevOps, Docker, Kubernetes, Terraform, cloud architect, SRE, security engineer |
+| **Quality & Security** | 14 | code reviewer, debugger, security auditor, penetration tester, QA, performance |
+| **Data & AI** | 13 | ML engineer, data scientist, LLM architect, NLP, MLOps, prompt engineer |
+| **Developer Experience** | 13 | documentation, CLI, refactoring, MCP developer, git workflows, DX optimizer |
+| **Specialized Domains** | 12 | blockchain, IoT, fintech, gaming, SEO, payments, embedded systems |
+| **Business & Product** | 11 | product manager, UX researcher, technical writer, scrum master, sales engineer |
+| **Meta Orchestration** | 10 | multi-agent coordinator, task distributor, workflow orchestrator |
+| **Research & Analysis** | 7 | market researcher, competitive analyst, trend analyst, scientific literature |
 
 ## Stack Presets
 
@@ -197,6 +214,7 @@ This setup curates plugins from these authors and communities:
 - [phuryn/pm-skills](https://github.com/phuryn/pm-skills) - Product management skills
 - [MadeByTokens](https://github.com/MadeByTokens/claude-code-plugins-madebytokens) - Resume helper and more
 - [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem) - Persistent memory system
+- [VoltAgent/awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents) - 135 specialized subagents across 10 categories
 - [Catppuccin](https://github.com/catppuccin/catppuccin) - Dark theme color palette
 - [romkatv/powerlevel10k](https://github.com/romkatv/powerlevel10k) - Zsh prompt theme
 
