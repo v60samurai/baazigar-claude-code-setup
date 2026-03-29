@@ -431,6 +431,10 @@ INTEGRATION_NAMES=(
     "Linear"
     "GitLab"
     "HuggingFace"
+    "Notion"
+    "Asana"
+    "Circleback"
+    "Ralph Loop"
 )
 
 INTEGRATION_SLUGS=(
@@ -446,6 +450,10 @@ INTEGRATION_SLUGS=(
     "linear"
     "gitlab"
     "huggingface"
+    "notion"
+    "asana"
+    "circleback"
+    "ralph-loop"
 )
 
 prompt_bundles() {
@@ -721,6 +729,11 @@ if bundle_dev:
         "claude-session-driver@superpowers-marketplace",
         "security-guidance@claude-plugins-official",
         "playwright@claude-plugins-official",
+        "greptile@claude-plugins-official",
+        "serena@claude-plugins-official",
+        "double-shot-latte@superpowers-marketplace",
+        "laravel-boost@claude-plugins-official",
+        "ui-ux-pro-max@ui-ux-pro-max-skill",
     ]
     # Add frontend-design for frontend stacks
     if stack in ("react-nextjs",):
@@ -758,13 +771,17 @@ integration_plugin_map = {
     "linear": "linear@claude-plugins-official",
     "gitlab": "gitlab@claude-plugins-official",
     "huggingface": "huggingface-skills@claude-plugins-official",
+    "notion": "Notion@claude-plugins-official",
+    "asana": "asana@claude-plugins-official",
+    "circleback": "circleback@claude-plugins-official",
+    "ralph-loop": "ralph-loop@claude-plugins-official",
 }
 for integration in integrations:
     plugin_name = integration_plugin_map.get(integration)
     if plugin_name:
         enabled_plugins[plugin_name] = True
 
-# Stack-specific LSPs
+# Stack-specific LSP (primary, always installed for the chosen stack)
 stack_lsp = {
     "react-nextjs": "typescript-lsp@claude-plugins-official",
     "python-django": "pyright-lsp@claude-plugins-official",
@@ -775,6 +792,24 @@ stack_lsp = {
 lsp = stack_lsp.get(stack)
 if lsp:
     enabled_plugins[lsp] = True
+
+# All LSPs (installed with dev bundle for polyglot development)
+if bundle_dev:
+    all_lsps = [
+        "typescript-lsp@claude-plugins-official",
+        "pyright-lsp@claude-plugins-official",
+        "gopls-lsp@claude-plugins-official",
+        "rust-analyzer-lsp@claude-plugins-official",
+        "clangd-lsp@claude-plugins-official",
+        "csharp-lsp@claude-plugins-official",
+        "jdtls-lsp@claude-plugins-official",
+        "kotlin-lsp@claude-plugins-official",
+        "lua-lsp@claude-plugins-official",
+        "php-lsp@claude-plugins-official",
+        "swift-lsp@claude-plugins-official",
+    ]
+    for l in all_lsps:
+        enabled_plugins[l] = True
 
 # Always install output styles
 enabled_plugins["learning-output-style@claude-plugins-official"] = True
@@ -808,6 +843,7 @@ register_marketplaces() {
         "affaan-m/everything-claude-code"
         "MadeByTokens/claude-code-plugins-madebytokens"
         "thedotmack/claude-mem"
+        "nextlevelbuilder/ui-ux-pro-max-skill"
     )
 
     for repo in "${marketplaces[@]}"; do

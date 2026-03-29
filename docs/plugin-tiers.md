@@ -128,6 +128,33 @@ Advanced development tools for power users.
 **Key skills**: `/frontend-design`
 **GitHub**: [anthropics/claude-code-frontend-design](https://github.com/anthropics/claude-code-frontend-design)
 
+### greptile
+**Marketplace**: claude-plugins-official
+**Description**: AI-powered code search and understanding across your entire codebase.
+**Key skills**: Semantic code search, codebase Q&A
+
+### serena
+**Marketplace**: claude-plugins-official
+**Description**: AI code intelligence with deep understanding of code structure and relationships.
+**Key skills**: Code navigation, relationship mapping
+
+### double-shot-latte
+**Marketplace**: superpowers
+**Description**: Enhanced workflow tools for advanced development patterns.
+**Key skills**: Workflow automation, productivity enhancement
+**GitHub**: [obra/superpowers-marketplace](https://github.com/obra/superpowers-marketplace)
+
+### laravel-boost
+**Marketplace**: claude-plugins-official
+**Description**: Laravel framework expertise with Eloquent, Blade, and Artisan command generation.
+**Key skills**: Laravel patterns, Eloquent queries, Artisan commands
+
+### ui-ux-pro-max
+**Marketplace**: ui-ux-pro-max-skill
+**Description**: UI/UX design intelligence with 67 styles, 96 palettes, 57 font pairings, 25 chart types across 13 stacks.
+**Key skills**: Design system generation, color palettes, typography, component review
+**GitHub**: [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)
+
 ---
 
 ## PM Pack Bundle
@@ -208,6 +235,10 @@ Each integration connects Claude Code to an external service. Install only what 
 | `linear` | Issue tracking, project management, and cycle planning |
 | `gitlab` | Merge requests, pipelines, and repository management |
 | `huggingface-skills` | Model inference, dataset browsing, and ML workflows |
+| `Notion` | Page management, database queries, and workspace search |
+| `asana` | Task management, project tracking, and workflow automation |
+| `circleback` | Meeting notes, action items, and follow-up tracking |
+| `ralph-loop` | Feedback loops, iteration tracking, and retrospective management |
 
 **Install individually**: `claude plugin install <name>` or select during the installer's integration step.
 
@@ -224,11 +255,26 @@ These plugins are installed automatically based on your stack choice.
 | `explanatory-output-style` | When stack preference includes detailed explanation context |
 
 ### Language Server Protocols (LSPs)
+
+**Primary LSP** (always installed for your chosen stack):
+
 | Plugin | When installed |
 |--------|---------------|
 | `typescript-lsp` | React, Next.js, or any TypeScript project |
 | `pyright-lsp` | Python (FastAPI, Django, or general Python) |
 | `gopls-lsp` | Go projects |
 | `rust-analyzer-lsp` | Rust projects |
+
+**All LSPs** (installed with Dev Power-Ups for polyglot development):
+
+| Plugin | Language |
+|--------|----------|
+| `clangd-lsp` | C / C++ |
+| `csharp-lsp` | C# / .NET |
+| `jdtls-lsp` | Java |
+| `kotlin-lsp` | Kotlin |
+| `lua-lsp` | Lua |
+| `php-lsp` | PHP |
+| `swift-lsp` | Swift |
 
 LSP plugins give Claude Code real-time access to type information, diagnostics, and go-to-definition - the same intelligence your editor uses.

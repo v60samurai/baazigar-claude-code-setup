@@ -1,6 +1,6 @@
 # Baazigar Claude Code Setup
 
-Production-ready Claude Code + iTerm2 setup. 60+ plugins, 8 commands, 138 agents, knowledge system, 6 stack presets. One command to install.
+Production-ready Claude Code + iTerm2 setup. 60+ plugins (16 integrations, 11 LSPs), 8 commands, 138 agents, knowledge system, 6 stack presets. One command to install.
 
 ## What You Get
 
@@ -10,7 +10,7 @@ Production-ready Claude Code + iTerm2 setup. 60+ plugins, 8 commands, 138 agents
 | **Agents** | 138 | 135 specialized subagents (VoltAgent) + researcher, reviewer, simplifier |
 | **Hooks** | 2 | Session start (load context), session end (save learnings) |
 | **Knowledge Templates** | 3 | Session journals, past mistakes log, decision records |
-| **Plugin Bundles** | 60+ | Core workflow, dev tools, PM skills, integrations |
+| **Plugin Bundles** | 60+ | Core workflow, dev tools (16 plugins + 11 LSPs), PM skills, 16 integrations |
 | **Stack Presets** | 6 | React/Next.js, Python/Django, Python/FastAPI, Go, Rust, General |
 | **CLAUDE.md** | 1 | Battle-tested system prompt with your identity + stack injected |
 | **Brand Guide Plugin** | 1 | Define your brand voice, tone, and style rules |
@@ -75,9 +75,9 @@ The workflow backbone. Brainstorming, planning, debugging, TDD, verification, cr
 **9 plugins** including: superpowers, episodic-memory, context7, code-review, code-simplifier, feature-dev, elements-of-style, plugin-dev, claude-mem
 
 ### Dev Power-Ups (opt-in)
-130+ coding skills that auto-activate per language. PR review, browser testing, security scanning, agent development.
+130+ coding skills that auto-activate per language. PR review, browser testing, security scanning, agent development, UI/UX design, and 11 LSPs for polyglot development.
 
-**10 plugins** including: everything-claude-code, pr-review-toolkit, superpowers-chrome, playwright, security-guidance
+**16 plugins + 11 LSPs** including: everything-claude-code, pr-review-toolkit, greptile, serena, ui-ux-pro-max, playwright, security-guidance
 
 ### PM Pack (opt-in)
 40+ product management skills. PRDs, user stories, competitive analysis, sprint planning, A/B test analysis, pricing strategy.
@@ -85,7 +85,7 @@ The workflow backbone. Brainstorming, planning, debugging, TDD, verification, cr
 **9 plugins** including: pm-execution, pm-product-strategy, pm-product-discovery, pm-market-research, pm-data-analytics
 
 ### Integrations (pick what you use)
-Vercel, GitHub, Slack, Sentry, Firebase, Supabase, Stripe, Pinecone, Atlassian, Linear, GitLab, HuggingFace
+Vercel, GitHub, Slack, Sentry, Firebase, Supabase, Stripe, Pinecone, Atlassian, Linear, GitLab, HuggingFace, Notion, Asana, Circleback, Ralph Loop
 
 [Full plugin details](docs/plugin-tiers.md)
 
