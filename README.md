@@ -155,7 +155,7 @@ Run standalone: `bash iterm2/install-iterm2.sh`
 
 After installation, everything is yours to customize:
 
-- **Edit CLAUDE.md** directly at `~/.claude/CLAUDE.md`
+- **Edit CLAUDE.md** directly at `~/.claude/CLAUDE.md` — see [Harshit's personal CLAUDE.md](claude/CLAUDE.md.example) as a real-world reference
 - **Add commands** - create `.md` files in `~/.claude/commands/`
 - **Add agents** - create `.md` files in `~/.claude/agents/`
 - **Add hooks** - create scripts in `~/.claude/hooks/`, register in settings.json
